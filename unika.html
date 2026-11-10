@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UNIKA Comandas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Limelight&family=Source+Sans+3:wght@400;500;600;700&family=Josefin+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: barra de pestañas tipo menú impreso (negro y oro), cada pestaña es una pantalla del sistema */
+:root{
+  --ink:#0e0b08; --panel:#18130e; --panel2:#211a12; --line:#3b2f20;
+  --gold:#d6a54e; --gold2:#f2d18e; --ember:#c9562c; --cream:#f0e7d5; --muted:#a8977d;
+  --ok:#74c27a; --warn:#e8b04a; --bad:#e2674b;
+  --f-display:"Federo","Copperplate","Didot",serif;
+  --f-body:"Josefin Sans","Avenir Next","Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--cream);font-family:var(--f-body);font-size:15px;line-height:1.4;
+  background-image:radial-gradient(1200px 400px at 50% -200px,rgba(201,86,44,.28),transparent 70%);}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1320px;margin:0 auto}
+header{padding-block:18px 0;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.logo{font-family:var(--f-display);font-size:44px;letter-spacing:.18em;line-height:1;
+  background:linear-gradient(180deg,var(--gold2),var(--gold) 55%,#8a5d22);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);padding-bottom:6px}
+.demo{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding-bottom:6px}
+.switch{width:44px;height:24px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);position:relative}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:.2s}
+.switch[aria-pressed="true"]{background:#3a2a12;border-color:var(--gold)}
+.switch[aria-pressed="true"]::after{left:23px;background:var(--gold2)}
+nav{display:flex;gap:4px;overflow-x:auto;margin-top:14px;scrollbar-width:none}
+nav button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px;white-space:nowrap;
+  font-family:var(--f-display);letter-spacing:.12em;text-transform:uppercase;font-size:13px;color:var(--muted)}
+nav button[aria-selected="true"]{color:var(--gold2);border-color:var(--gold)}
+nav .n{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--ember);color:#fff;font-family:var(--f-body);font-size:11px;margin-left:6px}
+main{padding-block:20px 40px}
+h2{font-family:var(--f-display);font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);font-size:20px;margin:0 0 4px;text-wrap:balance}
+.lead{color:var(--muted);margin:0 0 18px;max-width:70ch}
+h3{font-family:var(--f-display);font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-size:14px;margin:0 0 10px;display:flex;align-items:center;gap:10px}
+h3::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.tnum{font-variant-numeric:tabular-nums}
+.btn{background:var(--gold);color:#1a1208;border:0;border-radius:4px;padding:10px 16px;font-weight:700;letter-spacing:.04em}
+.btn:hover{background:var(--gold2)}
+.btn.ghost{background:transparent;color:var(--gold2);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--gold)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);white-space:nowrap}
+.pill.ok{color:var(--ok);border-color:#2f4d31}.pill.warn{color:var(--warn);border-color:#5a4520}.pill.bad{color:var(--bad);border-color:#5b2a1f}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+/* MESERO */
+.pos{display:grid;grid-template-columns:200px minmax(0,1fr) 330px;gap:16px;align-items:start}
+.mesas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mesa{aspect-ratio:1;max-width:100%;border:1px solid var(--line);background:var(--panel2);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.mesa b{font-family:var(--f-display);font-size:20px;font-weight:400}
+.mesa small{font-size:10px;color:var(--muted);letter-spacing:.05em}
+.mesa.busy{border-color:#6b4a1d}.mesa.busy small{color:var(--warn)}
+.mesa.res small{color:#9fb6e0}
+.mesa[aria-pressed="true"]{background:var(--gold);color:#1a1208;border-color:var(--gold2)}
+.mesa[aria-pressed="true"] small{color:#3b2a10}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cat{background:none;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.cat[aria-pressed="true"]{border-color:var(--gold);color:var(--gold2);background:#2a1f12}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.item{text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px;min-height:84px}
+.item:hover{border-color:var(--gold)}
+.item .nm{font-weight:600}
+.item .pr{color:var(--gold2);margin-top:auto}
+.item .tag{font-size:11px;color:var(--muted)}
+.catnote{font-size:13px;color:var(--muted);margin:-4px 0 12px}
+.tiempos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.tiempos button{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:8px 4px;font-size:12px;color:var(--muted)}
+.tiempos button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold2)}
+.tgroup{margin-bottom:10px}
+.tgroup h4{margin:0 0 4px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember)}
+.line{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.line .q{color:var(--gold2);font-weight:700}
+.line .x{background:none;border:0;color:var(--muted);font-size:16px;padding:0 4px}
+.line small{display:block;color:var(--muted);font-size:12px}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin:12px 0;font-size:18px}
+.total b{font-family:var(--f-display);color:var(--gold2);font-size:24px;font-weight:400}
+.empty{color:var(--muted);font-size:14px;padding:14px 0}
+
+/* COCINA */
+.kds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+.col h3 .c{color:var(--cream);font-family:var(--f-body)}
+.tk{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:4px;padding:12px;margin-bottom:10px}
+.tk.cola{border-left-color:var(--warn)}.tk.prep{border-left-color:var(--ember)}.tk.listo{border-left-color:var(--ok)}
+.tk.late{box-shadow:0 0 0 1px var(--bad)}
+.tk header{all:unset;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.tk .m{font-family:var(--f-display);font-size:18px;color:var(--gold2)}
+.tk .tt{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ember)}
+.tk ul{list-style:none;margin:0 0 10px;padding:0;font-size:14px}
+.tk li{padding:2px 0}.tk li b{color:var(--gold2)}
+.tk li em{font-style:normal;color:var(--muted);font-size:12px}
+.tk .ft{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.tk .btn{padding:6px 10px;font-size:12px}
+
+/* PANTALLA */
+.tv{background:#050403;border:10px solid #1d1812;border-radius:14px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.tvtop{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.tvtop .logo{font-size:30px}
+.clock{font-family:var(--f-display);font-size:26px;color:var(--gold2)}
+.tvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.tvc{border:1px solid var(--line);border-radius:6px;padding:14px;background:linear-gradient(180deg,#15100b,#0b0806)}
+.tvc .mm{display:flex;justify-content:space-between;align-items:baseline}
+.tvc .mm b{font-family:var(--f-display);font-size:28px;font-weight:400;color:var(--gold2)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:12px 0 8px}
+.steps span{height:6px;border-radius:3px;background:#2a2219}
+.steps span.on{background:var(--gold)}
+.steps span.now{background:var(--ember);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.45}}
+.tvc .st{font-size:20px}
+.tvc .st.listo{color:var(--ok)}
+.tvc .q{color:var(--muted);font-size:13px;margin-top:4px}
+.ticker{margin-top:18px;border-top:1px solid var(--line);padding-top:12px;color:var(--muted);font-size:14px;display:flex;gap:16px;flex-wrap:wrap}
+.ticker b{color:var(--bad)}
+
+/* RESERVAS */
+.resv{display:grid;grid-template-columns:340px minmax(0,1fr);gap:24px;align-items:start}
+.phone{width:100%;max-width:340px;border:10px solid #221b13;border-radius:34px;background:#120e0a;padding:20px 16px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.phone .logo{font-size:28px;text-align:center;display:block}
+.phone .sub{text-align:center;padding:0 0 14px;font-size:10px}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:12px;color:var(--muted);letter-spacing:.05em}
+.f input,.f select{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:9px 10px;font-size:14px;width:100%}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.days{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.days button{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:8px;font-size:13px}
+.days button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold2)}
+.apartar{border:1px dashed #6b4a1d;border-radius:6px;padding:10px;margin-bottom:12px;background:#1a130b}
+.apartar p{margin:0 0 8px;font-size:12px;color:var(--gold2)}
+.phone .btn{width:100%}
+.ok-msg{color:var(--ok);font-size:13px;text-align:center;margin-top:8px;min-height:18px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:600;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid #2a2117}
+.scroll{overflow-x:auto}
+.stats{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px}
+.stats div{font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.stats b{display:block;font-family:var(--f-display);font-size:26px;font-weight:400;color:var(--gold2);letter-spacing:0}
+
+/* CARNE */
+.meat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.mt{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px}
+.mt .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mt .hd b{font-size:16px}
+.bar{height:10px;border-radius:5px;background:#2a2219;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .v{background:#7a5a2c}.bar .a{background:#5d79a8}.bar .d{background:var(--gold)}
+.mt .nums{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:8px}
+.mt .nums b{color:var(--cream)}
+.mt .acts{display:flex;gap:6px;margin-top:10px}
+.mt .acts .btn{padding:5px 10px;font-size:12px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:14px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:12px;height:8px;border-radius:2px;display:inline-block}
+
+/* EXTRAS */
+.offers{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.of{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
+.of .k{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember)}
+.of h4{font-family:var(--f-display);font-weight:400;font-size:18px;color:var(--gold2);margin:6px 0 8px;letter-spacing:.06em}
+.of p{margin:0;color:var(--muted);font-size:14px}
+.split{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;margin-top:20px}
+.hb{display:grid;grid-template-columns:110px minmax(0,1fr) 48px;gap:10px;align-items:center;font-size:13px;margin-bottom:8px}
+.hb .t{height:14px;background:linear-gradient(90deg,#8a5d22,var(--gold));border-radius:2px}
+.hours{display:flex;align-items:flex-end;gap:6px;height:130px;border-bottom:1px solid var(--line);padding-top:10px}
+.hours div{flex:1;background:linear-gradient(180deg,var(--gold),#6b4a1d);border-radius:2px 2px 0 0;position:relative}
+.hours div.pk{background:linear-gradient(180deg,var(--ember),#6b2f17)}
+.hl{display:flex;gap:6px;font-size:11px;color:var(--muted);margin-top:4px}.hl span{flex:1;text-align:center}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+
+/* modal carne */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.dlg{background:var(--panel);border:1px solid var(--gold);border-radius:8px;padding:20px;width:100%;max-width:420px}
+.dlg h3{margin-bottom:4px}
+.dlg p{color:var(--muted);font-size:13px;margin:0 0 12px}
+.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:10px;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.chip:hover:not(:disabled){border-color:var(--gold)}
+.chip:disabled{opacity:.35;text-decoration:line-through}
+.chip small{font-size:11px;color:var(--muted)}
+.chip small.low{color:var(--warn)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--gold2);color:#1a1208;padding:10px 18px;border-radius:4px;font-weight:700;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+
+@media (max-width:1000px){
+  .pos{grid-template-columns:1fr}
+  .mesas{grid-template-columns:repeat(6,1fr)}
+  .kds{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .resv,.split{grid-template-columns:1fr}
+  .phone{margin:0 auto}
+}
+@media (max-width:560px){
+  .mesas{grid-template-columns:repeat(4,1fr)}
+  .kds{grid-template-columns:1fr}
+  .logo{font-size:34px}
+  .demo{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<link rel="stylesheet" href="assets/brand.css">
+</head>
+<body class="comandas-page">
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <a class="brand-link" href="unika.html" aria-label="Unika, inicio"><span class="logo">UNIKA<span class="brand-star">✦</span></span><span class="sub">Tacos &amp; cortes selectos</span></a><span class="workspace-label">OPERACIÓN / COMANDAS</span>
+      <div class="demo"><span id="demoLbl">Cocina automática (demo)</span><button class="switch" id="demo" aria-pressed="false" aria-labelledby="demoLbl"></button></div>
+    </div>
+    <nav role="tablist" id="tabs"></nav>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+<footer class="app-footer wrap"><span>UNIKA · MORELIA, MICHOACÁN</span><span>Buena comida. Buenos tragos. Mejores historias.</span><a href="reservas.html">Ver reservas de clientes ↗</a></footer>
+<div id="layer"></div>
+
+<script>
+// ===== MENÚ REAL (de las fotos) =====
+const CLAS=["Bistec","Suadero","Chorizo","Birria","Pastor","Tripa"];
+const PREM=["Arrachera","Camarón","Ribeye","Filete","Lengua"];
+// [nombre, precio, carne] carne: "C" elige clásica, "P" elige premium, texto = carne fija, null = sin carne
+const MENU=[
+ {c:"Entradas",t:1,n:"",i:[["Papas a la francesa",89],["Papas gajo",99],["Guacamole",99],["Aguachile chico",119,"Camarón"],["Aguachile grande",179,"Camarón"],["Ensalada César",119],["Choriqueso",119,"Chorizo"]]},
+ {c:"Tacos",t:2,n:"Tortilla de maíz, con el sabor que nos define.",i:[["Taco clásico",20,"C"],["Taco premium",26,"P"]]},
+ {c:"Quesadillas",t:2,n:"De harina, con el equilibrio perfecto.",i:[["Quesadilla clásica",48,"C"],["Quesadilla premium",60,"P"],["Mega clásica",100,"C"],["Mega premium",120,"P"]]},
+ {c:"Birria",t:2,n:"Acompañada de consomé y tortillas.",i:[["Plato de birria chico",75,"Birria"],["Plato de birria grande",85,"Birria"]]},
+ {c:"Burritos",t:2,n:"Tortilla de harina, rellenos de sabor.",i:[["Burrito clásico",85,"C"],["Burrito premium",95,"P"]]},
+ {c:"Alambres",t:2,n:"Carne, pimientos, cebolla y queso.",i:[["Alambre clásico",120,"C"],["Alambre premium",140,"P"]]},
+ {c:"Tortas",t:2,n:"Pan artesanal, con todo el sabor.",i:[["Torta clásica",70,"C"],["Torta premium",80,"P"]]},
+ {c:"Hamburguesas",t:2,n:"Carne jugosa y nuestro toque único.",i:[["Hamburguesa clásica",90],["Hamburguesa premium",115]]},
+ {c:"Cortes",t:3,n:"A la parrilla, con el carácter de México.",i:[["Tampiqueña",199,"Arrachera"],["Ribeye",289,"Ribeye"],["Arrachera",270,"Arrachera"],["T-Bone",289,"T-Bone"],["New York",239,"New York"]]},
+ {c:"Pizzas",t:3,n:"Ingredientes selectos, al estilo UNIKA.",i:[["Pizza de camarón",190,"Camarón"],["Pizza de arrachera",180,"Arrachera"],["Pizza de ribeye",180,"Ribeye"]]},
+ {c:"Cerveza",t:1,n:"",i:[["Corona 355 ml",35],["Victoria 355 ml",35],["Tarro chico",30],["Tarro 1 litro",85],["Cubetazo",100],["Michelada medio litro",50],["Michelada litro",90],["Mezclada chica",65],["Mezclada grande",90]]},
+ {c:"Coctelería",t:1,n:"Selección del menú de bebidas.",i:[["Mojito",90],["Margarita",90],["Paloma",90],["Piña Colada",90],["Moscow Mule",100],["Mezcal Mule",100],["Carajillo",110],["Long Island Iced Tea",110],["Gin Tonic",110],["Negroni",100]]},
+ {c:"Sin alcohol",t:1,n:"",i:[["Limonada",50],["Naranjada",50],["Agua de sabor 500 ml",35],["Agua de sabor 1 L",55],["Agua natural",25],["Refresco",35]]},
+];
+const TN=["","1er tiempo","2º tiempo","3er tiempo"];
+const TD=["","Bebidas y entradas","Tacos y platos","Cortes y pizzas"];
+
+// ===== ESTADO =====
+// carne en porciones: d = disponibles, v = vendidas hoy, a = apartadas por reservas
+const S={
+ tab:"mesero",query:"",mesa:4,cat:"Tacos",tiempo:2,cart:[],demo:false,nid:108,day:"Sáb 14",
+ meat:{Bistec:{d:60,v:22,a:0},Suadero:{d:48,v:31,a:0},Chorizo:{d:40,v:12,a:0},Birria:{d:30,v:18,a:0},Pastor:{d:80,v:44,a:0},Tripa:{d:9,v:21,a:0},
+  Arrachera:{d:26,v:14,a:10},Camarón:{d:22,v:8,a:0},Ribeye:{d:6,v:9,a:4},Filete:{d:15,v:3,a:0},Lengua:{d:0,v:12,a:0},"T-Bone":{d:5,v:2,a:0},"New York":{d:7,v:1,a:0}},
+ orders:[],
+ res:[
+  {n:"Familia Treviño",tel:"81 1234 5678",d:"Sáb 14",h:"14:00",p:8,m:7,c:"Arrachera",q:10,an:200},
+  {n:"Laura Garza",tel:"81 2233 4455",d:"Sáb 14",h:"15:30",p:4,m:2,c:"Ribeye",q:4,an:200},
+  {n:"Cumpleaños Rocío",tel:"81 9988 7766",d:"Dom 15",h:"13:30",p:12,m:11,c:"Pastor",q:40,an:400},
+  {n:"Jorge Salinas",tel:"81 5566 7788",d:"Dom 15",h:"16:00",p:2,m:3,c:"",q:0,an:0},
+ ],
+};
+const now=Date.now(),MIN=60000;
+function mk(mesa,t,st,items,ago){S.orders.push({id:S.nid++,mesa,t,st,items:items.map(([q,n,c])=>({q,n,c})),ts:now-ago*MIN})}
+mk(1,1,"entregado",[[2,"Corona 355 ml"],[1,"Guacamole"]],32);
+mk(1,2,"prep",[[6,"Taco clásico","Pastor"],[4,"Taco clásico","Suadero"],[1,"Plato de birria grande","Birria"]],9);
+mk(1,3,"espera",[[1,"Arrachera","Arrachera"]],9);
+mk(3,1,"listo",[[2,"Michelada litro"],[1,"Choriqueso","Chorizo"]],6);
+mk(3,2,"espera",[[1,"Alambre premium","Arrachera"],[2,"Quesadilla clásica","Bistec"]],6);
+mk(6,1,"entregado",[[4,"Limonada"]],20);
+mk(6,2,"cola",[[8,"Taco premium","Ribeye"],[2,"Burrito clásico","Pastor"]],4);
+mk(8,2,"cola",[[5,"Taco clásico","Tripa"],[1,"Torta premium","Camarón"]],2);
+mk(9,1,"prep",[[1,"Mojito"],[1,"Carajillo"],[1,"Aguachile grande","Camarón"]],3);
+mk(9,3,"espera",[[1,"Ribeye","Ribeye"],[1,"Pizza de arrachera","Arrachera"]],3);
+mk(11,2,"listo",[[10,"Taco clásico","Pastor"],[2,"Plato de birria chico","Birria"]],7);
+
+// ===== UTIL =====
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money=n=>"$"+n.toLocaleString("es-MX");
+const price=n=>{for(const g of MENU)for(const i of g.i)if(i[0]===n)return i[1];return 0};
+const left=k=>{const m=S.meat[k];return m?m.d:Infinity};
+function lvl(k){const d=left(k);return d<=0?"bad":d<=10?"warn":"ok"}
+function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2200)}
+const mins=o=>Math.max(0,Math.round((Date.now()-o.ts)/MIN));
+const active=()=>S.orders.filter(o=>o.st!=="entregado");
+function mesaState(m){
+  const os=S.orders.filter(o=>o.mesa===m);
+  if(os.length&&os.some(o=>o.st!=="entregado"))return "busy";
+  if(S.res.some(r=>r.m===m&&r.d===S.day))return "res";
+  return os.length?"busy":"free";
+}
+
+// ===== TABS =====
+const NAVICONS={mesero:"▦",cocina:"♨",pantalla:"▣",reservas:"▤",carne:"◈",extras:"✦"};
+const TABS=[["mesero","Mesero"],["cocina","Cocina"],["pantalla","Pantalla clientes"],["reservas","Reservas fin de semana"],["carne","Control de carne"],["extras","Qué más ofrecer"]];
+function renderTabs(){
+  const nCola=S.orders.filter(o=>o.st==="cola"||o.st==="prep").length;
+  const nLow=Object.keys(S.meat).filter(k=>lvl(k)!=="ok").length;
+  $("#tabs").innerHTML=TABS.map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}"><span class="nav-icon" aria-hidden="true">${NAVICONS[k]}</span>${l}${k==="cocina"&&nCola?`<span class="n">${nCola}</span>`:""}${k==="carne"&&nLow?`<span class="n">${nLow}</span>`:""}</button>`).join("");
+}
+function go(t){S.tab=t;try{history.replaceState(null,"","#"+t)}catch(e){}render()}
+
+// ===== MESERO =====
+function vMesero(){
+  const g=MENU.find(x=>x.c===S.cat);
+  const mesas=Array.from({length:12},(_,i)=>i+1).map(m=>{const st=mesaState(m);
+    return `<button class="mesa ${st}" aria-pressed="${S.mesa===m}" data-mesa="${m}"><b>${m}</b><small>${st==="busy"?"Ocupada":st==="res"?"Reservada":"Libre"}</small></button>`}).join("");
+  const matches=S.query.trim()?MENU.flatMap(group=>group.i.map(i=>({i,category:group.c}))).filter(({i})=>i[0].toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(S.query.toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,''))):g.i.map(i=>({i,category:g.c}));
+  const items=matches.map(({i:[n,p,c],category})=>{
+    let tag=c==="C"?"Elige carne clásica":c==="P"?"Elige carne premium":c?c:"";
+    const out=c&&c!=="C"&&c!=="P"&&left(c)<=0;
+    return `<button class="item" data-add="${esc(n)}" ${out?"disabled":""}><span class="item-eyebrow">${esc(category)}</span><span class="nm">${esc(n)}</span>${tag?`<span class="tag">${out?"Agotado hoy":esc(tag)}</span>`:""}<span class="item-bottom"><span class="pr tnum">${money(p)}</span><span class="add-icon" aria-hidden="true">+</span></span></button>`}).join("");
+  const groups=[1,2,3].map(t=>{const ls=S.cart.map((l,i)=>({...l,i})).filter(l=>l.t===t);if(!ls.length)return"";
+    return `<div class="tgroup"><h4>${TN[t]}</h4>${ls.map(l=>`<div class="line"><span class="q tnum">${l.q}×</span><span>${esc(l.n)}${l.c?`<small>${esc(l.c)}</small>`:""}</span><span class="tnum">${money(l.q*price(l.n))}</span><button class="x" data-del="${l.i}" aria-label="Quitar">×</button></div>`).join("")}</div>`}).join("");
+  const tot=S.cart.reduce((s,l)=>s+l.q*price(l.n),0);
+  const prev=S.orders.filter(o=>o.mesa===S.mesa);
+  return `<section class="service-heading"><div><span class="eyebrow">EL BUEN SERVICIO EMPIEZA AQUÍ</span><h2>Todo listo para <em>servir.</em></h2><p class="lead">Elige una mesa, arma su pedido y que empiece lo bueno.</p></div><div class="service-mark" aria-hidden="true">✦<span>HECHO AL MOMENTO<br>SERVIDO CON CARÁCTER</span></div></section>
+  <div class="service-stats"><div><span class="stat-icon">▦</span><span><b>${Array.from({length:12},(_,i)=>mesaState(i+1)).filter(x=>x==='free').length}<small> / 12</small></b><small>Mesas libres</small></span></div><div><span class="stat-icon">♨</span><span><b>${S.orders.filter(o=>o.st==='cola'||o.st==='prep').length}</b><small>Comandas en cocina</small></span></div><div><span class="stat-icon ready">✓</span><span><b>${S.orders.filter(o=>o.st==='listo').length}</b><small>Listas para servir</small></span></div><a href="reservas.html">Reservas de clientes <span>↗</span></a></div>
+  <div class="pos">
+    <aside class="box tables-panel"><div class="panel-heading"><h3>El salón</h3><span class="eyebrow">12 MESAS</span></div><p class="panel-caption">Selecciona una mesa</p><div class="mesas">${mesas}</div><div class="table-legend"><span><i></i>Libre</span><span><i class="busy"></i>Ocupada</span><span><i class="res"></i>Reservada</span></div><a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Unika%20Tacos%20y%20Cortes%20Selectos%20Morelia" target="_blank" rel="noopener">Morelia, Michoacán ↗</a></aside>
+    <section class="box menu-panel"><div class="panel-heading"><h3>Nuestra carta</h3><span class="eyebrow">HECHO CON CARÁCTER</span></div><label class="menu-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="menu-search" type="search" placeholder="Buscar un platillo…" aria-label="Buscar platillo" value="${esc(S.query)}"><span>⌕</span></label><div class="cats">${MENU.map(x=>`<button class="cat" aria-pressed="${x.c===S.cat}" data-cat="${esc(x.c)}">${esc(x.c)}</button>`).join("")}</div>
+      <div class="menu-section-heading"><h4>${S.query?'Resultados':esc(g.c)}</h4><span>${matches.length} opciones</span></div>${!S.query&&g.n?`<p class="catnote">${esc(g.n)}</p>`:""}<div class="items">${items||'<p class="empty">No encontramos ese platillo. Prueba con otro nombre.</p>'}</div></section>
+    <aside class="box order-panel"><span class="eyebrow">COMANDA ACTUAL</span><div class="order-heading"><h3>Mesa ${String(S.mesa).padStart(2,'0')}</h3><span class="pill"><span class="dot"></span>${S.cart.reduce((s,l)=>s+l.q,0)} artículos</span></div><p class="panel-caption">Organiza el pedido por tiempos</p>
+      <div class="tiempos">${[1,2,3].map(t=>`<button aria-pressed="${S.tiempo===t}" data-t="${t}">${TN[t]}</button>`).join("")}</div>
+      ${groups||`<div class="empty order-empty"><span aria-hidden="true">▤</span><b>Una buena orden empieza aquí</b><p>Agrega platillos de la carta.<br>Los enviaremos al ${TN[S.tiempo]}.</p></div>`}
+      <div class="total"><span>Total</span><b class="tnum">${money(tot)}</b></div>
+      <button class="btn" style="width:100%" id="send" ${S.cart.length?"":"disabled"}>Enviar a cocina <span aria-hidden="true">↗</span></button><p class="order-note">Los tiempos salen en orden, recién preparados.</p>
+      ${prev.length?`<h3 style="margin-top:18px">Ya pedido</h3>${prev.map(o=>`<div class="line" style="grid-template-columns:minmax(0,1fr) auto"><span>${TN[o.t]} · ${o.items.reduce((s,i)=>s+i.q,0)} art.</span>${stPill(o.st)}</div>`).join("")}`:""}
+    </aside>
+  </div>`;
+}
+function stPill(st){const m={espera:["","En espera"],cola:["warn","En cola"],prep:["warn","Preparando"],listo:["ok","Listo"],entregado:["","Entregado"]}[st];return `<span class="pill ${m[0]}"><span class="dot"></span>${m[1]}</span>`}
+function addItem(n,c){
+  const g=MENU.find(x=>x.i.some(i=>i[0]===n));const t=S.tiempo||g.t;
+  const ex=S.cart.find(l=>l.n===n&&l.c===c&&l.t===t);
+  if(ex)ex.q++;else S.cart.push({n,c,t,q:1});render();
+}
+function pickMeat(n,kind){
+  const list=kind==="C"?CLAS:PREM;
+  $("#layer").innerHTML=`<div class="ov" data-close="1"><div class="dlg" role="dialog" aria-label="Elegir carne"><h3>${esc(n)}</h3><p>Elige la carne. Las que se acaban se bloquean solas.</p>
+  <div class="chips">${list.map(k=>{const d=left(k);return `<button class="chip" data-meat="${k}" data-for="${esc(n)}" ${d<=0?"disabled":""}><span>${k}</span><small class="${d<=10&&d>0?"low":""}">${d<=0?"Agotado":d<=10?"Quedan "+d:d+" porc."}</small></button>`}).join("")}</div>
+  <button class="btn ghost" data-close="1">Cancelar</button></div></div>`;
+}
+function send(){
+  const ts=[...new Set(S.cart.map(l=>l.t))].sort();
+  const mesaActive=S.orders.some(o=>o.mesa===S.mesa&&o.st!=="entregado");
+  ts.forEach((t,i)=>{
+    const items=S.cart.filter(l=>l.t===t).map(l=>({q:l.q,n:l.n,c:l.c}));
+    S.orders.push({id:S.nid++,mesa:S.mesa,t,st:(i===0&&!mesaActive)?"cola":"espera",items,ts:Date.now()});
+  });
+  S.cart.forEach(l=>{const k=l.c;if(k&&S.meat[k]){S.meat[k].d=Math.max(0,S.meat[k].d-l.q);S.meat[k].v+=l.q}});
+  S.cart=[];toast(`Mesa ${S.mesa} enviada a cocina`);render();
+}
+
+// ===== COCINA =====
+function advance(id){
+  const o=S.orders.find(x=>x.id===id);if(!o)return;
+  const nx={cola:"prep",prep:"listo",listo:"entregado",espera:"cola"}[o.st];o.st=nx;o.ts=Date.now();
+  if(nx==="entregado"){const n=S.orders.filter(x=>x.mesa===o.mesa&&x.st==="espera").sort((a,b)=>a.t-b.t)[0];if(n){n.st="cola";n.ts=Date.now()}}
+  render();
+}
+function vCocina(){
+  const cols=[["espera","En espera","Tiempos siguientes"],["cola","En cola",""],["prep","Preparando",""],["listo","Listo para servir",""]];
+  const btn={espera:"Marchar ya",cola:"Empezar",prep:"Listo",listo:"Entregado"};
+  return `<h2>Pantalla de cocina</h2><p class="lead">Las comandas llegan en orden de llegada. La cocina ve qué tiempo es y qué carne lleva cada platillo. Si una comanda pasa de 15 minutos se marca en rojo.</p>
+  <div class="kds">${cols.map(([k,l])=>{const os=S.orders.filter(o=>o.st===k).sort((a,b)=>a.ts-b.ts);
+    return `<div class="col"><h3>${l} <span class="c">${os.length}</span></h3>${os.map((o,i)=>`<div class="tk ${k} ${k!=="espera"&&mins(o)>=15?"late":""}"><header><span class="m">Mesa ${o.mesa}</span><span class="tt">${TN[o.t]}</span></header>
+      <ul>${o.items.map(it=>`<li><b>${it.q}×</b> ${esc(it.n)} ${it.c?`<em>· ${esc(it.c)}</em>`:""}</li>`).join("")}</ul>
+      <div class="ft"><span class="tnum">#${o.id} · ${k==="espera"?"esperando":mins(o)+" min"}</span><button class="btn ${k==="espera"?"ghost":""}" data-adv="${o.id}">${btn[k]}</button></div></div>`).join("")||`<p class="empty">Nada aquí.</p>`}</div>`}).join("")}</div>`;
+}
+
+// ===== PANTALLA =====
+function vPantalla(){
+  const ms=[...new Set(active().map(o=>o.mesa))].sort((a,b)=>a-b);
+  const queue=S.orders.filter(o=>o.st==="cola").sort((a,b)=>a.ts-b.ts);
+  const agot=Object.keys(S.meat).filter(k=>left(k)<=0);
+  const cards=ms.map(m=>{
+    const os=S.orders.filter(o=>o.mesa===m);const cur=os.filter(o=>o.st!=="entregado"&&o.st!=="espera").sort((a,b)=>a.t-b.t)[0]||os.filter(o=>o.st==="espera").sort((a,b)=>a.t-b.t)[0];
+    const total=Math.max(...os.map(o=>o.t));
+    const steps=[1,2,3].slice(0,Math.max(total,1)).map(t=>{const o=os.find(x=>x.t===t);if(!o)return`<span></span>`;return `<span class="${o.st==="entregado"?"on":o===cur?"now":""}"></span>`}).join("");
+    const lab={cola:"En cola",prep:"Preparando",listo:"¡Listo! Ya va",espera:"Esperando turno"}[cur.st];
+    const pos=queue.indexOf(cur);
+    return `<div class="tvc"><div class="mm"><b>Mesa ${m}</b><span class="tt" style="color:var(--ember);font-size:12px;letter-spacing:.15em;text-transform:uppercase">${TN[cur.t]}</span></div>
+      <div class="steps" style="grid-template-columns:repeat(${Math.max(total,1)},1fr)">${steps}</div>
+      <div class="st ${cur.st==="listo"?"listo":""}">${lab}</div><div class="q">${pos>=0?`Lugar ${pos+1} en la fila`:cur.st==="prep"?"En la plancha ahora":cur.st==="listo"?"Sale en un momento":"Sale después del tiempo anterior"}</div></div>`}).join("");
+  return `<h2>Pantalla para clientes</h2><p class="lead">Va en una TV del local. Cada mesa ve en qué tiempo va su pedido y su lugar en la fila. Se actualiza sola.</p>
+  <div class="tv"><div class="tvtop"><span class="logo">UNIKA</span><span class="sub" style="padding:0">Buena comida · Buenos tragos · Mejores historias</span><span class="clock tnum" id="clock"></span></div>
+  <div class="tvgrid">${cards||`<p class="empty">Sin pedidos activos.</p>`}</div>
+  <div class="ticker"><span>${agot.length?`Hoy ya se terminó: <b>${agot.join(", ")}</b>`:"Toda la carne disponible"}</span><span>Reserva tu mesa del fin de semana y aparta tu carne · escanea el QR de tu mesa</span></div></div>`;
+}
+
+// ===== RESERVAS =====
+function vReservas(){
+  const rs=S.res.filter(r=>r.d===S.day);
+  const pers=rs.reduce((s,r)=>s+r.p,0),an=rs.reduce((s,r)=>s+r.an,0),ap=rs.reduce((s,r)=>s+r.q,0);
+  const meatOpts=["",...CLAS,...PREM,"T-Bone","New York"].map(k=>`<option value="${k}">${k?`${k} (${left(k)} disp.)`:"Sin apartar carne"}</option>`).join("");
+  return `<h2>Reservas de sábado y domingo</h2><p class="lead">El cliente reserva desde el celular y aparta su carne con anticipo. Así el fin de semana la cocina sabe cuánta carne pedir y ya no se acaba para quien reservó.</p>
+  <div class="resv">
+    <form class="phone" id="rf"><span class="logo">UNIKA</span><div class="sub">Reserva tu mesa</div>
+      <div class="days">${["Sáb 14","Dom 15"].map(d=>`<button type="button" aria-pressed="${S.day===d}" data-day="${d}">${d==="Sáb 14"?"Sábado 14 nov":"Domingo 15 nov"}</button>`).join("")}</div>
+      <label class="f">Nombre<input id="rn" required value="Andrea López"></label>
+      <label class="f">WhatsApp<input id="rt" required value="81 4455 6677" inputmode="tel"></label>
+      <div class="row2"><label class="f">Hora<select id="rh">${["13:00","13:30","14:00","14:30","15:00","15:30","16:00","17:00","18:00"].map(h=>`<option ${h==="14:30"?"selected":""}>${h}</option>`).join("")}</select></label>
+      <label class="f">Personas<input id="rp" type="number" min="1" max="20" value="5"></label></div>
+      <div class="apartar"><p>Aparta tu carne · se cobra anticipo de $50 por cada 5 porciones</p>
+        <div class="row2"><label class="f">Carne<select id="rc">${meatOpts}</select></label><label class="f">Porciones<input id="rq" type="number" min="0" max="60" value="0"></label></div></div>
+      <button class="btn" type="submit">Reservar</button><div class="ok-msg" id="rok"></div>
+    </form>
+    <div class="box">
+      <div class="stats"><div>Reservas<b class="tnum">${rs.length}</b></div><div>Personas<b class="tnum">${pers}</b></div><div>Porciones apartadas<b class="tnum">${ap}</b></div><div>Anticipos<b class="tnum">${money(an)}</b></div></div>
+      <h3>${S.day==="Sáb 14"?"Sábado 14 de noviembre":"Domingo 15 de noviembre"}</h3>
+      <div class="scroll"><table><thead><tr><th>Hora</th><th>Nombre</th><th>Pers.</th><th>Mesa</th><th>Carne apartada</th><th>Anticipo</th></tr></thead>
+      <tbody>${rs.sort((a,b)=>a.h.localeCompare(b.h)).map(r=>`<tr><td class="tnum">${r.h}</td><td>${esc(r.n)}<br><small style="color:var(--muted)">${esc(r.tel)}</small></td><td class="tnum">${r.p}</td><td class="tnum">${r.m}</td><td>${r.q?`${r.q} × ${esc(r.c)}`:"—"}</td><td class="tnum">${r.an?money(r.an):"—"}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">Sin reservas este día.</td></tr>`}</tbody></table></div>
+    </div>
+  </div>`;
+}
+function reserve(e){
+  e.preventDefault();
+  const n=$("#rn").value.trim(),tel=$("#rt").value.trim(),h=$("#rh").value,p=+$("#rp").value||1,c=$("#rc").value,q=c?(+$("#rq").value||0):0;
+  if(c&&q>left(c)){$("#rok").style.color="var(--bad)";$("#rok").textContent=`Solo quedan ${left(c)} porciones de ${c}.`;return}
+  const used=S.res.filter(r=>r.d===S.day).map(r=>r.m);const m=[1,2,3,4,5,6,7,8,9,10,11,12].find(x=>!used.includes(x))||12;
+  const an=q?Math.ceil(q/5)*50:0;
+  S.res.push({n,tel,d:S.day,h,p,m,c,q,an});
+  if(c&&q){S.meat[c].d-=q;S.meat[c].a+=q}
+  render();$("#rok").textContent=`Listo, mesa ${m} a las ${h}${q?` con ${q} porciones de ${c} apartadas`:""}.`;
+}
+
+// ===== CARNE =====
+function vCarne(){
+  const ks=Object.keys(S.meat);
+  const card=k=>{const m=S.meat[k],tot=m.d+m.v+m.a||1,l=lvl(k);
+    return `<div class="mt"><div class="hd"><b>${k}</b><span class="pill ${l}"><span class="dot"></span>${l==="bad"?"Agotado":l==="warn"?"Por acabarse":"Suficiente"}</span></div>
+    <div class="bar"><i class="v" style="width:${m.v/tot*100}%"></i><i class="a" style="width:${m.a/tot*100}%"></i><i class="d" style="width:${m.d/tot*100}%"></i></div>
+    <div class="nums tnum"><span>Vendido <b>${m.v}</b></span><span>Apartado <b>${m.a}</b></span><span>Quedan <b>${m.d}</b></span></div>
+    <div class="acts"><button class="btn ghost" data-recv="${k}">+10 porciones</button>${m.d>0?`<button class="btn ghost" data-out="${k}">Marcar agotado</button>`:""}</div></div>`};
+  const low=ks.filter(k=>lvl(k)!=="ok");
+  return `<h2>Control de carne</h2><p class="lead">Cada orden descuenta porciones solas. Cuando una carne baja de 10 porciones avisa; si llega a cero, el mesero ya no la puede pedir y la pantalla avisa a los clientes.</p>
+  ${low.length?`<div class="box" style="margin-bottom:16px;border-color:#5a4520"><b style="color:var(--warn)">Atención:</b> ${low.map(k=>`${k} (${left(k)})`).join(" · ")}</div>`:""}
+  <div class="legend"><span><i style="background:#7a5a2c"></i>Vendido hoy</span><span><i style="background:#5d79a8"></i>Apartado por reservas</span><span><i style="background:var(--gold)"></i>Disponible</span></div>
+  <h3>Clásicas</h3><div class="meat">${CLAS.map(card).join("")}</div>
+  <h3 style="margin-top:22px">Premium y cortes</h3><div class="meat">${[...PREM,"T-Bone","New York"].map(card).join("")}</div>`;
+}
+
+// ===== EXTRAS =====
+function vExtras(){
+  const top=[["Taco clásico pastor",186],["Taco clásico suadero",121],["Michelada litro",64],["Plato de birria",48],["Taco premium arrachera",41],["Arrachera",19]];
+  const mx=top[0][1];
+  const hrs=[["1",12],["2",30],["3",54],["4",48],["5",26],["6",22],["7",38],["8",61],["9",70],["10",44],["11",18]];
+  const hmx=70;
+  const offs=[
+   ["En la mesa","Menú con QR y pedido desde el celular","El cliente escanea el QR de su mesa, ve el menú con fotos y pide. El pedido cae directo a la cocina con su número de mesa."],
+   ["Para llevar","Pedidos por WhatsApp","Un enlace en WhatsApp e Instagram para pedir para llevar. La orden entra a la misma fila de cocina con la hora de recogida."],
+   ["Clientes","Tarjeta de lealtad digital","Por cada 10 tacos, uno gratis. Se registra con su número de WhatsApp, sin tarjetas de papel."],
+   ["Caja","Cuenta dividida y pago en mesa","El mesero divide la cuenta por persona y cobra con terminal o transferencia desde la misma comanda."],
+   ["Dueño","Reporte diario en el celular","Ventas del día, platillos más vendidos, horas pico y cuánta carne pedir para mañana."],
+   ["Compras","Pedido de carne sugerido","Con las ventas y las reservas de cada fin de semana, el sistema sugiere cuántos kilos pedir al proveedor."],
+  ];
+  return `<h2>Qué más le podemos ofrecer</h2><p class="lead">Módulos que se pueden sumar al sistema de comandas. Los números de abajo son de ejemplo para mostrar cómo se vería el reporte.</p>
+  <div class="offers">${offs.map(o=>`<div class="of"><div class="k">${o[0]}</div><h4>${o[1]}</h4><p>${o[2]}</p></div>`).join("")}</div>
+  <div class="split">
+    <div class="box"><h3>Más vendido hoy (ejemplo)</h3>${top.map(([n,v])=>`<div class="hb"><span>${n}</span><span class="t" style="width:${v/mx*100}%"></span><span class="tnum" style="text-align:right">${v}</span></div>`).join("")}</div>
+    <div class="box"><h3>Órdenes por hora (ejemplo)</h3><div class="hours">${hrs.map(([h,v])=>`<div class="${v>=60?"pk":""}" style="height:${v/hmx*100}%" title="${v} órdenes"></div>`).join("")}</div>
+    <div class="hl">${hrs.map(([h])=>`<span>${h}pm</span>`).join("")}</div><p class="note">Hora pico entre 8 y 9 pm: conviene tener más carne marinada lista desde las 7.</p></div>
+  </div>`;
+}
+
+// ===== RENDER =====
+function render(){
+  renderTabs();
+  $("#app").innerHTML={mesero:vMesero,cocina:vCocina,pantalla:vPantalla,reservas:vReservas,carne:vCarne,extras:vExtras}[S.tab]();
+  tick();
+}
+function tick(){const c=$("#clock");if(c)c.textContent=new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})}
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button,[data-close]");if(!b)return;const d=b.dataset;
+  if(d.tab)return go(d.tab);
+  if(d.mesa){S.mesa=+d.mesa;return render()}
+  if(d.cat){S.query="";S.cat=d.cat;S.tiempo=MENU.find(x=>x.c===d.cat).t;return render()}
+  if(d.t){S.tiempo=+d.t;return render()}
+  if(d.add){const it=MENU.flatMap(g=>g.i).find(i=>i[0]===d.add);if(it[2]==="C"||it[2]==="P")return pickMeat(it[0],it[2]);return addItem(it[0],it[2]||"")}
+  if(d.meat){$("#layer").innerHTML="";return addItem(d.for,d.meat)}
+  if(d.close&&(e.target===b)){$("#layer").innerHTML="";return}
+  if(d.del){S.cart.splice(+d.del,1);return render()}
+  if(b.id==="send")return send();
+  if(d.adv)return advance(+d.adv);
+  if(d.day){S.day=d.day;return render()}
+  if(d.recv){S.meat[d.recv].d+=10;toast(`+10 porciones de ${d.recv}`);return render()}
+  if(d.out){S.meat[d.out].d=0;toast(`${d.out} marcado como agotado`);return render()}
+  if(b.id==="demo"){S.demo=!S.demo;b.setAttribute("aria-pressed",S.demo);return}
+});
+document.addEventListener("input",e=>{if(e.target.id!=="menu-search")return;const pos=e.target.selectionStart;S.query=e.target.value;render();const input=$("#menu-search");input.focus();try{input.setSelectionRange(pos,pos)}catch{}});
+document.addEventListener("submit",e=>{if(e.target.id==="rf")reserve(e)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#layer").innerHTML=""});
+
+// Demo: la cocina avanza sola cada 7 s para que se vea moverse la pantalla
+setInterval(()=>{
+  if(!S.demo||$("#layer").innerHTML||S.tab==="reservas")return;
+  const o=S.orders.filter(x=>["cola","prep","listo"].includes(x.st)).sort((a,b)=>a.ts-b.ts)[0];
+  if(o)advance(o.id);
+},7000);
+setInterval(tick,15000);
+
+const h=(location.hash||"").slice(1);if(TABS.some(t=>t[0]===h))S.tab=h;
+render();
+</script>
+
+</body>
+</html>
